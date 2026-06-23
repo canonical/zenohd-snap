@@ -1,0 +1,9 @@
+*.snap
+*.craft
+parts
+prime
+stage
+overlay
+spread/
+spread.yaml
+snap/tests/

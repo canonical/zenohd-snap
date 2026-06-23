@@ -1,0 +1,27 @@
+#!/bin/sh
+# Launch zenohd, automatically picking up a user-provided config if present.
+# Place your configuration at: /var/snap/zenohd/common/config.json5
+#
+# A -c/--config flag passed explicitly always takes precedence.
+
+config="$SNAP_COMMON/config.json5"
+
+# Check if the user already passed -c or --config
+has_config=0
+for arg in "$@"; do
+    case "$arg" in
+        -c|--config) has_config=1; break ;;
+    esac
+done
+
+if [ "$has_config" -eq 0 ] && [ -f "$config" ]; then
+    exec "$SNAP/bin/zenohd" \
+        --plugin-search-dir "$SNAP/lib/zenoh/plugins" \
+        --plugin-search-dir "$SNAP_COMMON/plugins" \
+        -c "$config" "$@"
+else
+    exec "$SNAP/bin/zenohd" \
+        --plugin-search-dir "$SNAP/lib/zenoh/plugins" \
+        --plugin-search-dir "$SNAP_COMMON/plugins" \
+        "$@"
+fi

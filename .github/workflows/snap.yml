@@ -1,0 +1,19 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  snap:
+    uses: canonical/robotics-actions-workflows/.github/workflows/snap.yaml@main
+    with:
+      runs-on: '["ubuntu-24.04", "ubuntu-24.04-arm"]'
+      snap-test-script: |
+        zenohd --help
+      snap-risk: candidate
+    secrets:
+      snapstore-login: ${{ secrets.SNAPSTORE_LOGIN }}
