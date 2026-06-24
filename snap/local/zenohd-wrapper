@@ -1,11 +1,10 @@
 #!/bin/sh
 # Launch zenohd, automatically picking up a user-provided config if present.
-# Place your JSON5 configuration at: /var/snap/zenohd/common/config.json5
+# The following filenames are probed in order under /var/snap/zenohd/common/:
+#   config.json5, config.yaml, config.yml
 #
 # Any explicit -c / --config argument (in any form) takes precedence and
 # suppresses the auto-injection.
-
-config="$SNAP_COMMON/config.json5"
 
 # Check if the user already passed -c or --config in any clap form:
 #   -c <path>, --config <path>, --config=<path>, -c=<path>, -c<path>
@@ -16,7 +15,21 @@ for arg in "$@"; do
     esac
 done
 
-if [ "$has_config" -eq 0 ] && [ -f "$config" ]; then
+config=""
+if [ "$has_config" -eq 0 ]; then
+    for candidate in \
+        "$SNAP_COMMON/config.json5" \
+        "$SNAP_COMMON/config.yaml" \
+        "$SNAP_COMMON/config.yml"
+    do
+        if [ -f "$candidate" ]; then
+            config="$candidate"
+            break
+        fi
+    done
+fi
+
+if [ -n "$config" ]; then
     exec "$SNAP/bin/zenohd" \
         --plugin-search-dir "$SNAP/lib/zenoh/plugins" \
         --plugin-search-dir "$SNAP_COMMON/plugins" \

@@ -24,18 +24,13 @@ snap stop zenohd.zenohd       # stop the daemon
 snap start zenohd.zenohd      # start the daemon
 ```
 
-To use a custom configuration, place a JSON5 file at
-`/var/snap/zenohd/common/config.json5` before starting the daemon:
+To use a custom configuration, place a config file under
+`/var/snap/zenohd/common/` before starting the daemon. The following filenames
+are probed in order: `config.json5`, `config.yaml`, `config.yml`:
 
 ```bash
 sudo cp my-config.json5 /var/snap/zenohd/common/config.json5
 sudo snap restart zenohd.zenohd
-```
-
-To use a YAML config or a different path, pass `-c` explicitly instead:
-
-```bash
-snap set zenohd daemon-options="-c /path/to/config.yaml"
 ```
 
 A reference configuration is bundled at `$SNAP/etc/zenohd/DEFAULT_CONFIG.json5`.

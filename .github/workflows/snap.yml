@@ -13,7 +13,8 @@ jobs:
     with:
       runs-on: '["ubuntu-24.04", "ubuntu-24.04-arm"]'
       snap-test-script: |
-        zenohd --help
+        snap services zenohd.zenohd | grep -q active
+        snap run zenohd --help
       snap-risk: candidate
     secrets:
       snapstore-login: ${{ secrets.SNAPSTORE_LOGIN }}

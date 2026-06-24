@@ -18,6 +18,12 @@ description: |
     -P, --plugin <PLUGIN>        Plugin to load (repeatable)
     --plugin-search-dir <PATH>   Directory to search for plugin libraries
 
+  Configuration
+    Place a config file at one of the following paths to auto-load it on
+    startup (probed in order):
+      /var/snap/zenohd/common/config.{json5,yaml,yml}
+    A reference configuration is at $SNAP/etc/zenohd/DEFAULT_CONFIG.json5.
+
   Plugins
     zenohd supports runtime-loadable plugins (.so shared libraries). The
     following plugins are bundled and can be enabled via the config file:
