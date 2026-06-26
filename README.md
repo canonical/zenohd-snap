@@ -66,6 +66,13 @@ Only one config extension (`json5`, `yaml`, or `yml`) may exist in each
 directory at a time. A reference configuration is bundled at
 `$SNAP/etc/zenohd/DEFAULT_CONFIG.json5`.
 
+To pass a config file explicitly, use `--config` (or `-c`); auto-discovery is
+skipped when this flag is present:
+
+```bash
+zenohd --config /path/to/my-config.json5
+```
+
 ## Plugins
 
 zenohd supports runtime-loadable plugins. Plugin configuration lives entirely
