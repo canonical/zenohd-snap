@@ -8,7 +8,16 @@ description: |
   runtime with a plugin manager, connecting peers and clients via pub/sub,
   queries, and computations.
 
-  Usage:
+  The router daemon is installed disabled. Enable and start it with:
+
+    sudo snap start --enable zenohd.daemon
+
+  To stop and disable it again:
+
+    sudo snap stop --disable zenohd.daemon
+
+  To run an ad-hoc router instance without the daemon:
+
     zenohd [OPTIONS]
 
   Key options:
@@ -21,7 +30,8 @@ description: |
   Configuration
     Place a config file at one of the following paths to auto-load it on
     startup (probed in order):
-      /var/snap/zenohd/common/config.{json5,yaml,yml}
+      ~/snap/zenohd/common/config.{json5,yaml,yml}  (plain app; takes precedence)
+      /var/snap/zenohd/common/config.{json5,yaml,yml}  (daemon and plain app)
     A reference configuration is at $SNAP/etc/zenohd/DEFAULT_CONFIG.json5.
 
   Plugins
@@ -73,9 +83,15 @@ parts:
       zenohd-wrapper: bin/zenohd-wrapper
 
 apps:
-  zenohd:
+  daemon:
     command: bin/zenohd-wrapper
     daemon: simple
+    install-mode: disable
+    plugs:
+      - network
+      - network-bind
+  zenohd:
+    command: bin/zenohd-wrapper
     plugs:
       - network
       - network-bind
