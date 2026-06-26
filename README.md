@@ -15,25 +15,56 @@ snap install zenohd
 
 ## Usage
 
-The router starts automatically as a daemon after installation. Manage it with:
+### Daemon
+
+The daemon is installed disabled. Enable and start it with:
 
 ```bash
-snap services zenohd          # check status
-snap logs zenohd.zenohd       # view logs
-snap stop zenohd.zenohd       # stop the daemon
-snap start zenohd.zenohd      # start the daemon
+sudo snap start --enable zenohd.daemon
 ```
 
-To use a custom configuration, place a config file under
-`/var/snap/zenohd/common/` before starting the daemon. The following filenames
-are probed in order: `config.json5`, `config.yaml`, `config.yml`:
+Manage it with:
 
 ```bash
+snap services zenohd.daemon          # check status
+snap logs zenohd.daemon              # view logs
+sudo snap stop --disable zenohd.daemon   # stop and disable
+```
+
+### Ad-hoc router
+
+To run an ad-hoc router instance without the daemon:
+
+```bash
+zenohd [OPTIONS]
+```
+
+### Configuration
+
+To use a custom configuration, place a config file at one of the following
+paths. The launcher probes them in order and uses the first one found:
+
+| Path | Available to |
+|------|-------------|
+| `~/snap/zenohd/common/config.{json5,yaml,yml}` | plain app |
+| `/var/snap/zenohd/common/config.{json5,yaml,yml}` | daemon and plain app |
+
+`~/snap/zenohd/common/` takes precedence when both directories contain a config
+file. Having more than one config extension in the same directory is an error.
+
+```bash
+# daemon: place config in SNAP_COMMON
 sudo cp my-config.json5 /var/snap/zenohd/common/config.json5
-sudo snap restart zenohd.zenohd
+sudo snap restart zenohd.daemon
+
+# plain app: optionally place config in SNAP_USER_COMMON (takes precedence)
+cp my-config.json5 ~/snap/zenohd/common/config.json5
+zenohd
 ```
 
-A reference configuration is bundled at `$SNAP/etc/zenohd/DEFAULT_CONFIG.json5`.
+Only one config extension (`json5`, `yaml`, or `yml`) may exist in each
+directory at a time. A reference configuration is bundled at
+`$SNAP/etc/zenohd/DEFAULT_CONFIG.json5`.
 
 ## Plugins
 
@@ -62,7 +93,7 @@ via `/var/snap/zenohd/common/config.json5`:
 Then restart the daemon to pick up the changes:
 
 ```bash
-sudo snap restart zenohd.zenohd
+sudo snap restart zenohd.daemon
 ```
 
 ## Development
