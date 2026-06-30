@@ -1,0 +1,10 @@
+name: bump-snap-version
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  bump-snap-version:
+    uses: canonical/robotics-actions-workflows/.github/workflows/bump-snap-version.yaml@main

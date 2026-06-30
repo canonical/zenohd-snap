@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  snap:
+    uses: canonical/robotics-actions-workflows/.github/workflows/snap.yaml@main
+    with:
+      runs-on: '["ubuntu-24.04", "ubuntu-24.04-arm"]'
+      snap-test-script: |
+        # daemon is installed disabled; start it and verify it becomes active
+        snap services zenohd.daemon | grep -q disabled
+        sudo snap start --enable zenohd.daemon
+        sleep 5
+
+        snap services zenohd.daemon | grep -q active
+        ss -ltn | grep -q ':7447'
+
+        sudo snap stop --disable zenohd.daemon
+        sleep 2
+
+        # config reload: write a custom listen port, restart, verify
+        sudo tee /var/snap/zenohd/common/config.json5 > /dev/null <<'ZENOH_CONFIG'
+        { listen: { endpoints: ["tcp/0.0.0.0:17447"] } }
+        ZENOH_CONFIG
+
+        sudo snap start --enable zenohd.daemon
+        sleep 5
+
+        snap services zenohd.daemon | grep -q active
+        ss -ltn | grep -q ':17447'
+
+        sudo snap stop --disable zenohd.daemon
+        sudo rm /var/snap/zenohd/common/config.json5
+
+        # plain CLI app
+        snap run zenohd --help
+      snap-risk: candidate
+    secrets:
+      snapstore-login: ${{ secrets.SNAPSTORE_LOGIN }}

@@ -1,0 +1,97 @@
+name: zenohd
+title: Eclipse Zenoh Router
+summary: Zenoh router - Zero Overhead Pub/Sub/Query Protocol
+description: |
+  Eclipse Zenoh: Zero Overhead Pub/Sub, Store/Query and Compute.
+
+  zenohd is a daemon router that builds Zenoh infrastructure. It is the Zenoh
+  runtime with a plugin manager, connecting peers and clients via pub/sub,
+  queries, and computations.
+
+  The router daemon is installed disabled. Enable and start it with:
+
+    sudo snap start --enable zenohd.daemon
+
+  To stop and disable it again:
+
+    sudo snap stop --disable zenohd.daemon
+
+  To run an ad-hoc router instance without the daemon:
+
+    zenohd [OPTIONS]
+
+  Key options:
+    -c, --config <PATH>          Configuration file (JSON5 or YAML)
+    -l, --listen <ENDPOINT>      Locator to listen on (repeatable)
+    -e, --connect <ENDPOINT>     Peer locator to connect to (repeatable)
+    -P, --plugin <PLUGIN>        Plugin to load (repeatable)
+    --plugin-search-dir <PATH>   Directory to search for plugin libraries
+
+  Configuration
+    Place a config file at one of the following paths to auto-load it on
+    startup (probed in order):
+      ~/snap/zenohd/common/config.{json5,yaml,yml}  (plain app; takes precedence)
+      /var/snap/zenohd/common/config.{json5,yaml,yml}  (daemon and plain app)
+    A reference configuration is at $SNAP/etc/zenohd/DEFAULT_CONFIG.json5.
+
+  Plugins
+    zenohd supports runtime-loadable plugins (.so shared libraries). The
+    following plugins are bundled and can be enabled via the config file:
+      - rest: exposes zenoh over HTTP/REST
+      - storage_manager: in-memory and backend-based key-value storage
+    Additional plugins can be placed in /var/snap/zenohd/common/plugins/.
+
+  For more information visit https://zenoh.io
+
+version: "1.9.0"
+license: EPL-2.0
+
+base: core26
+grade: stable
+confinement: strict
+
+contact: https://github.com/eclipse-zenoh/zenoh/issues
+source-code: https://github.com/eclipse-zenoh/zenoh
+issues: https://github.com/eclipse-zenoh/zenoh/issues
+website: https://zenoh.io
+
+parts:
+  zenohd:
+    plugin: rust
+    source: https://github.com/eclipse-zenoh/zenoh
+    source-type: git
+    source-tag: "1.9.0"
+    source-depth: 1
+    rust-channel: "1.93.0"
+    override-build: |
+      cargo build --release --locked \
+        --package zenohd \
+        --package zenoh-plugin-rest \
+        --package zenoh-plugin-storage-manager
+      install -Dm755 target/release/zenohd "${CRAFT_PART_INSTALL}/bin/zenohd"
+      install -Dm644 DEFAULT_CONFIG.json5 \
+        "${CRAFT_PART_INSTALL}/etc/zenohd/DEFAULT_CONFIG.json5"
+      install -Dm644 target/release/libzenoh_plugin_rest.so \
+        "${CRAFT_PART_INSTALL}/lib/zenoh/plugins/libzenoh_plugin_rest.so"
+      install -Dm644 target/release/libzenoh_plugin_storage_manager.so \
+        "${CRAFT_PART_INSTALL}/lib/zenoh/plugins/libzenoh_plugin_storage_manager.so"
+
+  launcher:
+    plugin: dump
+    source: snap/local/
+    organize:
+      zenohd-wrapper: bin/zenohd-wrapper
+
+apps:
+  daemon:
+    command: bin/zenohd-wrapper
+    daemon: simple
+    install-mode: disable
+    plugs:
+      - network
+      - network-bind
+  zenohd:
+    command: bin/zenohd-wrapper
+    plugs:
+      - network
+      - network-bind
