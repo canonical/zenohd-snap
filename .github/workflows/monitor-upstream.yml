@@ -1,3 +1,8 @@
+name: Monitor Upstream Release
+
+permissions:
+  issues: write
+
 on:
   schedule:
     - cron: '0 0 * * *'

@@ -1,4 +1,9 @@
-name: bump-snap-version
+name: Address update tickets
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: write
 
 on:
   schedule:
