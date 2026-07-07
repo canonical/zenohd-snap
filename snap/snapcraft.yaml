@@ -43,7 +43,7 @@ description: |
 
   For more information visit https://zenoh.io
 
-version: "1.9.0"
+adopt-info: zenohd
 license: EPL-2.0
 
 base: core26
@@ -63,6 +63,12 @@ parts:
     source-tag: "1.9.0"
     source-depth: 1
     rust-channel: "1.93.0"
+    override-pull: |
+      craftctl default
+
+      git config --global --add safe.directory '*'
+      version="$(git describe --always --tags | sed -e 's/^v//;s/-/+git/;y/-/./')"
+      craftctl set version="${version}"
     override-build: |
       cargo build --release --locked \
         --package zenohd \
