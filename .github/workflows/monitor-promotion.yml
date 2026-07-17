@@ -1,6 +1,7 @@
 name: Monitor promotion
 
 permissions:
+  contents: read
   issues: write
 
 on:
